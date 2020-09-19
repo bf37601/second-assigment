@@ -1,5 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
 from sklearn.preprocessing import LabelEncoder
 
 df_public = pd.read_csv('survey_results_public.csv',
@@ -35,5 +37,45 @@ df_public['JobSat'] = onehotencoder.fit_transform(df_public['JobSat'])
 # change all to float
 df_public = df_public.astype(float)
 
+
+# y = ConvertedComp
+# x1 = YearsCodePro
+# x2 = Age
+
+# +-3 standard deviation elimination
+df_public_sd = df_public[np.abs(df_public - df_public.mean()) <= 3*df_public.std()]
+df_public_sd.isna().sum()
+df_public_sd = df_public_sd.dropna()
+
+# quantile elimination
+Q1 = df_public.quantile(0.25)
+Q3 = df_public.quantile(0.75)
+IQR = Q3 - Q1
+df_public_q = df_public[~((df_public < (Q1 - 1.5 * IQR)) | (df_public > (Q3 + 1.5 * IQR))).any(axis=1)]
+
 pd.set_option('display.max_columns', None)
+
 print(df_public.corr())
+print(df_public_sd.corr())
+print(df_public_q.corr())
+
+
+df_public.plot()
+plt.show()
+df_public_sd.plot()
+plt.show()
+df_public_q.plot()
+plt.show()
+
+sns.boxplot(y='ConvertedComp', data=df_public_sd)
+plt.show()
+sns.boxplot(y='ConvertedComp', data=df_public_q)
+plt.show()
+sns.boxplot(y='YearsCodePro', data=df_public_sd)
+plt.show()
+sns.boxplot(y='YearsCodePro', data=df_public_q)
+plt.show()
+sns.boxplot(y='Age', data=df_public_sd)
+plt.show()
+sns.boxplot(y='Age', data=df_public_q)
+plt.show()
