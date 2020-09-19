@@ -2,7 +2,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+from sklearn import linear_model
 from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import mean_squared_error
+
 
 df_public = pd.read_csv('survey_results_public.csv',
                         usecols=['Respondent',
@@ -38,9 +41,9 @@ df_public['JobSat'] = onehotencoder.fit_transform(df_public['JobSat'])
 df_public = df_public.astype(float)
 
 
-# y = ConvertedComp
+# y = Age
 # x1 = YearsCodePro
-# x2 = Age
+# x2 = ConvertedComp
 
 # +-3 standard deviation elimination
 df_public_sd = df_public[np.abs(df_public - df_public.mean()) <= 3*df_public.std()]
@@ -58,7 +61,6 @@ pd.set_option('display.max_columns', None)
 print(df_public.corr())
 print(df_public_sd.corr())
 print(df_public_q.corr())
-
 
 df_public.plot()
 plt.show()
@@ -79,3 +81,31 @@ sns.boxplot(y='Age', data=df_public_sd)
 plt.show()
 sns.boxplot(y='Age', data=df_public_q)
 plt.show()
+
+
+reg = linear_model.LinearRegression()
+
+df_len = len(df_public_q)
+y_true = df_public_q['Age']
+
+
+# x1
+reg.fit(df_public_q[['YearsCodePro']], df_public_q['Age'])
+
+# x2
+# reg.fit(df_public_q[['ConvertedComp']], df_public_q['Age'])
+
+y_test = pd.DataFrame(np.random.rand(df_len)*100)  # for x1 or x2
+
+# x1 & x2
+# reg.fit(df_public_q[['YearsCodePro', 'ConvertedComp']], df_public_q['Age'])
+# y_test = pd.DataFrame(np.random.rand(df_len,2)*100)
+
+# x1 & x2 & 'BetterLife' & 'JobSat'
+# reg.fit(df_public_q[['YearsCodePro', 'ConvertedComp', 'BetterLife', 'JobSat']], df_public_q['Age'])
+# y_test = pd.DataFrame(np.random.rand(df_len,4)*100)
+
+y_pred = reg.predict(y_test)
+print(mean_squared_error(y_true, y_pred))
+
+
