@@ -2,9 +2,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+
 from sklearn import linear_model
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
 
 df_public = pd.read_csv('survey_results_public.csv',
                         usecols=['Respondent',
@@ -63,13 +65,18 @@ plt.show()
 
 reg = linear_model.LinearRegression()
 
-df_len = len(df_public_q)
-y_true = df_public_q['Age']
+x_train, x_test, y_train, y_test = train_test_split(
+    df_public_q[['YearsCodePro',
+                 'ConvertedComp',
+                 'BetterLife',
+                 'JobSat']],
+    df_public_q.Age, random_state=20)
 
-# x1 & x2 & 'BetterLife' & 'JobSat'
-x_test = df_public_q[['YearsCodePro', 'ConvertedComp', 'BetterLife', 'JobSat']]
-reg.fit(x_test, y_true)
-y_test = pd.DataFrame(np.random.rand(df_len, 4)*100)
+reg.fit(x_test, y_test)
+reg.fit(x_train, y_train)
 
-y_pred = reg.predict(x_test)
-print(mean_squared_error(y_true, y_pred))
+y_test_pred = reg.predict(x_test)
+y_train_pred = reg.predict(x_train)
+
+print(mean_squared_error(y_test, y_test_pred))
+print(mean_squared_error(y_train, y_train_pred))
