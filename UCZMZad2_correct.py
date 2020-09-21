@@ -1,7 +1,16 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
 df_public = pd.read_csv('survey_results_public.csv',
-                        usecols=['Respondent', 'Age1stCode', 'YearsCode', 'YearsCodePro', 'ConvertedComp', 'Age'],
+                        usecols=['Respondent',
+                                 'Age1stCode',
+                                 'YearsCode',
+                                 'YearsCodePro',
+                                 'ConvertedComp',
+                                 'Age'
+                                 # 'BetterLife',
+                                 # 'JobSat'
+                                 ],
                         index_col='Respondent')
 df_public.dropna(inplace=True)
 
@@ -22,3 +31,10 @@ df_public.replace(to_replace='9e+05', value='900000', inplace=True)
 df_public = df_public.astype(float)
 
 print(df_public.corr())
+
+plt.plot(df_public['YearsCodePro'],
+         df_public['ConvertedComp'], 'ro', markersize=0.3)
+plt.xlabel('YearsCodePro')
+plt.ylabel('ConvertedComp')
+plt.title('All')
+plt.show()
